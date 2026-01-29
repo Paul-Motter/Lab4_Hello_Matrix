@@ -82,32 +82,50 @@ public:
 
 	void createTranslateMat(float *T, float x, float y, float z)
 	{
-   // IMPLEMENT ME
+		createIdentityMat(T);
+		T[12] = x;
+		T[13] = y;
+		T[14] = z;
 	}
-
 
 	void createScaleMat(float *S, float x, float y, float z)
 	{
-   // IMPLEMENT ME
+		createIdentityMat(S);
+		S[0] = x;
+		S[5] = y;
+		S[10] = z;
 	}
 
 	void createRotateMatX(float *R, float radians)
 	{ 
-   // IMPLEMENT ME
+		createIdentityMat(R);
+		R[5] = glm::cos(radians);
+		R[6] = glm::sin(radians);
+		R[9] = -glm::sin(radians);
+		R[10] = glm::cos(radians);
 	}
 
 	void createRotateMatY(float *R, float radians)
 	{
-   // IMPLEMENT ME
+		createIdentityMat(R);
+		R[0] = glm::cos(radians);
+		R[2] = -glm::sin(radians);
+		R[8] = glm::sin(radians);
+		R[10] = glm::cos(radians);
 	}
 
 	void createRotateMatZ(float *R, float radians)
 	{
-   // IMPLEMENT ME
+		createIdentityMat(R);
+		R[0] = glm::cos(radians);
+		R[1] = glm::sin(radians);
+		R[4] = -glm::sin(radians);
+		R[5] = glm::cos(radians);
 	}
 
 	void multMat(float *C, const float *A, const float *B)
 	{
+
 		float c = 0;
 		for(int k = 0; k < 4; ++k) {
       // Process kth column of C
@@ -118,8 +136,9 @@ public:
 				c = 0;
          //vector dot
 				for(int j = 0; j < 4; ++j) {
-            // IMPLEMENT ME
+					c += A[i + j*4]*B[k*4 + j];
 				}
+				C[k*4 + i] = c;
 			}
 		}
 	}
@@ -227,9 +246,16 @@ public:
 	void render()
 	{
 		//local modelview matrix use this for lab 4
-		float M[16] = {0};
-		float V[16] = {0};
-		float P[16] = {0};
+		float M[16] = {0}; //model matrix for the objects.
+
+		float V[16] = {0}; //view matrix for the camera.
+		float P[16] = {0}; //projection matrix for the camera.
+
+		// Intermediate transform matrixes
+		float T[16] = {0};
+		float R[16] = {0};
+		float S[16] = {0};
+		float temp[16] = {0};
 
 		// Get current frame buffer size.
 		int width, height;
@@ -240,19 +266,70 @@ public:
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		//Use the local matrices for lab 4
+		// PROJECTION MATRIX
 		float aspect = width/(float)height;
 		createPerspectiveMat(P, 70.0f, aspect, 0.1, 100.0f);	
-		createIdentityMat(M);
-		createIdentityMat(V);
+		// VIEW MATRIX
+		createTranslateMat(T, -2.0f, -2.5f, -10.0f);
+		createRotateMatX(R, 0.6);
+		multMat(temp, T, R);
+		createRotateMatY(R, -0.3);
+		multMat(V, R, temp);
 
 		// Draw mesh using GLSL.
 		prog->bind();
 		glUniformMatrix4fv(prog->getUniform("P"), 1, GL_FALSE, P);
 		glUniformMatrix4fv(prog->getUniform("V"), 1, GL_FALSE, V);
+
+		createTranslateMat(T, -3, 1, 0);
+		createRotateMatX(R, 0.1);
+		createScaleMat(S, 1,6,1);
+		multMat(temp, R, S);
+		multMat(M, T, temp);
 		glUniformMatrix4fv(prog->getUniform("M"), 1, GL_FALSE, M);
 		mesh->draw(prog);
-		prog->unbind();
 
+		createTranslateMat(T, -1, 1, 0);
+		createRotateMatX(R, -0.1);
+		createScaleMat(S, 1,6,1);
+		multMat(temp, R, S);
+		multMat(M, T, temp);
+		glUniformMatrix4fv(prog->getUniform("M"), 1, GL_FALSE, M);
+		mesh->draw(prog);
+
+		createTranslateMat(T, -2, 0, -0.25);
+		createRotateMatZ(R, 0.2);
+		createScaleMat(S, 3,0.5,0.5);
+		multMat(temp, R, S);
+		multMat(M, T, temp);
+		glUniformMatrix4fv(prog->getUniform("M"), 1, GL_FALSE, M);
+		mesh->draw(prog);
+
+		createTranslateMat(T, 1, 2, 0);
+		createRotateMatY(R, 1);
+		createScaleMat(S, 0.5,8,0.5);
+		multMat(temp, R, S);
+		multMat(M, T, temp);
+		glUniformMatrix4fv(prog->getUniform("M"), 1, GL_FALSE, M);
+		mesh->draw(prog);
+
+		createTranslateMat(T, 1, 5.5, 0);
+		createRotateMatX(R, 0);
+		createScaleMat(S, 2,1,1);
+		multMat(temp, R, S);
+		multMat(M, T, temp);
+		glUniformMatrix4fv(prog->getUniform("M"), 1, GL_FALSE, M);
+		mesh->draw(prog);
+
+		createTranslateMat(T, 1, -1.5, 0);
+		createRotateMatZ(R, 0);
+		createScaleMat(S, 2,1,1);
+		multMat(temp, R, S);
+		multMat(M, T, temp);
+		glUniformMatrix4fv(prog->getUniform("M"), 1, GL_FALSE, M);
+		mesh->draw(prog);
+
+		prog->unbind();
 	}
 };
 
