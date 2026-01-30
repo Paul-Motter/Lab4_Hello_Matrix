@@ -270,11 +270,9 @@ public:
 		float aspect = width/(float)height;
 		createPerspectiveMat(P, 70.0f, aspect, 0.1, 100.0f);	
 		// VIEW MATRIX
-		createTranslateMat(T, -2.0f, -2.5f, -10.0f);
-		createRotateMatX(R, 0.6);
-		multMat(temp, T, R);
-		createRotateMatY(R, -0.3);
-		multMat(V, R, temp);
+		createTranslateMat(T, 0, -2, -15.0f);
+		createRotateMatY(R, -0.4);
+		multMat(V, T, R);
 
 		// Draw mesh using GLSL.
 		prog->bind();
@@ -289,7 +287,7 @@ public:
 		glUniformMatrix4fv(prog->getUniform("M"), 1, GL_FALSE, M);
 		mesh->draw(prog);
 
-		createTranslateMat(T, -1, 1, 0);
+		createTranslateMat(T, -0, 1, 0);
 		createRotateMatX(R, -0.1);
 		createScaleMat(S, 1,6,1);
 		multMat(temp, R, S);
@@ -305,7 +303,7 @@ public:
 		glUniformMatrix4fv(prog->getUniform("M"), 1, GL_FALSE, M);
 		mesh->draw(prog);
 
-		createTranslateMat(T, 1, 2, 0);
+		createTranslateMat(T, 2, 2, 0);
 		createRotateMatY(R, 1);
 		createScaleMat(S, 0.5,8,0.5);
 		multMat(temp, R, S);
@@ -313,7 +311,7 @@ public:
 		glUniformMatrix4fv(prog->getUniform("M"), 1, GL_FALSE, M);
 		mesh->draw(prog);
 
-		createTranslateMat(T, 1, 5.5, 0);
+		createTranslateMat(T, 2, 5.5, 0);
 		createRotateMatX(R, 0);
 		createScaleMat(S, 2,1,1);
 		multMat(temp, R, S);
@@ -321,7 +319,7 @@ public:
 		glUniformMatrix4fv(prog->getUniform("M"), 1, GL_FALSE, M);
 		mesh->draw(prog);
 
-		createTranslateMat(T, 1, -1.5, 0);
+		createTranslateMat(T, 2, -1.5, 0);
 		createRotateMatZ(R, 0);
 		createScaleMat(S, 2,1,1);
 		multMat(temp, R, S);
